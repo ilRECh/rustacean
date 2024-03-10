@@ -1,7 +1,7 @@
 ```
 Disclaimer
-Every symbol, line, file, and folder contained in the present repository was created with one and the only purpose of learning new skills and obtain knowledge.
-The repository may contain files that were never meant to be neither sold, nor stolen.
+Every symbol, line, file, and folder contained in the present repository was created with the sole purpose of learning new skills and obtaining knowledge.
+The repository may contain files that were never meant to be sold or stolen.
 ```
 
 # rustacean

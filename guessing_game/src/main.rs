@@ -9,6 +9,8 @@ fn main() {
 
     loop {
         print!("Enter your guess: ");
+
+        // how to do that more humble, like "<< std::endl"?
         std::io::stdout().flush().unwrap();
 
         let mut guess = String::new();

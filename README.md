@@ -13,3 +13,4 @@ Repeating these projects helps in understanding the core abilities of the langua
 
 ## Projects
 - guessing game
+- minigrep

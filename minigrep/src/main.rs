@@ -6,17 +6,31 @@ fn main() {
     // get the arguments
     let args: Vec<String> = env::args().skip(1).collect();
 
-    if args.len() < 2 {
-        println!("Usage: minigrep <regex> <filename>");
-    }
+    let config = Config::new(&args);
 
-    let regex = &args[0];
-    let filename = &args[1];
+    println!("Searching for \"{}\" in the file named \"{}\"", config.regex, config.filename);
 
-    println!("Searching for \"{regex}\" in the file named \"{filename}\"");
-
-    let content = fs::read_to_string(filename)
+    let content = fs::read_to_string(config.filename)
         .expect("The file must be accessbile");
 
     println!("{content}");
+}
+
+struct Config {
+    regex: String,
+    filename: String
+}
+
+impl Config {
+    pub fn new(args: &[String]) -> Self {
+        if args.len() < 2 {
+            println!("Not enugh arguments.\nUsage: minigrep <regex> <filename>");
+            std::process::exit(1);
+        }
+
+        Config {
+            regex: args[0].clone(),
+            filename: args[1].clone()
+        }
+    }
 }

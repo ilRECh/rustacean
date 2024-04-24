@@ -11,8 +11,6 @@ fn main() {
             process::exit(1);
         });
 
-    println!("Searching for \"{}\" in the file named \"{}\"", config.regex, config.filename);
-
     if let Err(err) = minigrep::run(config) {
         println!("{err}");
         process::exit(1);

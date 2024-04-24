@@ -6,7 +6,7 @@
 			"command": "run",
 			"args": [
 				"--",
-				"nobody",
+				"Are",
 				"poem.txt"
 			],
 			"problemMatcher": [
@@ -16,6 +16,19 @@
 			"group": {
 				"kind": "build",
 				"isDefault": true,
+			},
+		},
+
+		{
+			"type": "cargo",
+			"command": "test",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"label": "rust: cargo test",
+			"group": {
+				"kind": "build",
+				"isDefault": false,
 			},
 		}
 	]

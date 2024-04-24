@@ -7,12 +7,12 @@ fn main() {
 
     let config = Config::build(&args)
         .unwrap_or_else(|err_str| {
-            println!("{err_str}");
+            eprintln!("{err_str}");
             process::exit(1);
         });
 
     if let Err(err) = minigrep::run(config) {
-        println!("{err}");
+        eprintln!("{err}");
         process::exit(1);
     }
 }

@@ -6,7 +6,7 @@
 			"command": "run",
 			"args": [
 				"--",
-				"Are",
+				"who",
 				"poem.txt"
 			],
 			"problemMatcher": [
@@ -17,6 +17,9 @@
 				"kind": "build",
 				"isDefault": true,
 			},
+			"env": {
+				"IGNORE_CASE":""
+			}
 		},
 
 		{

@@ -2,15 +2,22 @@ use std::{
     fs,
     io::{ prelude::*, BufReader },
     net::{ TcpListener, TcpStream },
+    thread,
+    time::Duration
 };
+
+use webserv::ThreadPool;
 
 fn main() {
     let listener = TcpListener::bind("localhost:7878").unwrap();
+    let pool = ThreadPool::build(4).expect("The size should be > 0");
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        handle_connection(stream);
+        pool.execute(|| {
+            handle_connection(stream);
+        });
     }
 }
 
@@ -18,23 +25,17 @@ fn handle_connection(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
     let request_line = buf_reader.lines().next().unwrap().unwrap();
 
-    let response = if request_line == "GET / HTTP/1.1" {
-        let status_line = "HTTP/1.1 200 OK";
-        let contents = fs::read_to_string("hello_world.html").unwrap();
-        let length = contents.len();
-
-        format!(
-            "{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}"
-        )
-    } else {
-        let status_line = "HTTP/1.1 404 NOT FOUND";
-        let contents = fs::read_to_string("404.html").unwrap();
-        let length = contents.len();
-
-        format!(
-            "{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}"
-        )
+    let (status_line, filename) = match &request_line[..] {
+        "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello_world.html"),
+        "GET /sleep HTTP/1.1" => {
+            thread::sleep(Duration::from_secs(30));
+            ("HTTP/1.1 200 OK", "hello_world.html")
+        },
+        _ => ("HTTP/1.1 404 NOT FOUND", "404.html"),
     };
+
+    let contents = fs::read_to_string(filename).unwrap();
+    let response = format!("{status_line}\r\nContent-Length: {}\r\n\r\n{contents}", contents.len());
 
     stream.write_all(response.as_bytes()).unwrap();
 }

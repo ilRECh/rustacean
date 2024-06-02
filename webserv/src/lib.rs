@@ -13,7 +13,7 @@ type Job = Box<dyn FnOnce() + Send + 'static>;
 
 pub struct ThreadPool {
     w: Vec<Worker>,
-    s: mpsc::Sender<Job>,
+    s: Option<mpsc::Sender<Job>>,
 }
 
 impl ThreadPool {
@@ -31,7 +31,7 @@ impl ThreadPool {
             w.push(Worker::new(id, Arc::clone(&r)));
         }
 
-        Ok(Self { w, s } )
+        Ok(Self { w, s: Some(s) } )
     }
 
     pub fn execute<F>(&self, f: F)
@@ -40,26 +40,44 @@ impl ThreadPool {
     {
         let job = Box::new(f);
 
-        self.s.send(job).unwrap();
+        self.s.as_ref().unwrap().send(job).unwrap();
+    }
+}
+
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        drop(self.s.take());
+
+        for w in self.w.iter_mut() {
+            println!("{} is now shutting down", w.id);
+
+            if let Some(t) = w.thread.take() {
+                t.join().unwrap();
+            }
+        }
     }
 }
 
 struct Worker {
     id: usize,
-    thread: thread::JoinHandle<()>,
+    thread: Option<thread::JoinHandle<()>>,
 }
 
 impl Worker {
     fn new(id: usize, recv: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         let thread = thread::spawn(move || loop {
-            let job = recv.lock().unwrap().recv().unwrap();
+            let job = recv.lock().unwrap().recv();
 
-            println!("{id} go a new job!");
-
-            job();
+            if let Ok(job) = job {
+                println!("{id} got a new job!");
+                job();
+            } else {
+                println!("the channel is closed, punching out");
+                break;
+            }
         });
 
-        Worker { id, thread }
+        Worker { id, thread: Some(thread) }
     }
 }
 

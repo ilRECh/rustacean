@@ -12,7 +12,7 @@ fn main() {
     let listener = TcpListener::bind("localhost:7878").unwrap();
     let pool = ThreadPool::build(4).expect("The size should be > 0");
 
-    for stream in listener.incoming() {
+    for stream in listener.incoming().take(4) {
         let stream = stream.unwrap();
 
         pool.execute(|| {
